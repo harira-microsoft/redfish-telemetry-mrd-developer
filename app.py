@@ -7,7 +7,7 @@ Web UI for Redfish Telemetry MRD Developer
 Flask-based interface for generating Redfish Metric Report Definitions
 """
 
-from flask import Flask, render_template, request, jsonify, send_file, flash, redirect, url_for
+from flask import Flask, render_template, request, jsonify, send_file, flash, redirect, url_for, Response
 from werkzeug.utils import secure_filename
 import os
 import json
