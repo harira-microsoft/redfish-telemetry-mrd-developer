@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}Analyze Mockups - Redfish Telemetry MRD Developer{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">
+        <i class="bi bi-graph-up me-2"></i>
+        Select Mockup to Analyze
+    </h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{{ url_for('upload_file') }}" class="btn btn-primary">
+            <i class="bi bi-cloud-upload me-1"></i>
+            Upload New Mockup
+        </a>
+    </div>
+</div>
+
+{% if files %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-file-earmark-zip me-2"></i>
+                    Available Mockup Files
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>File Name</th>
+                                <th>Type</th>
+                                <th>Upload Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for file in files %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-file-zip text-primary me-2"></i>
+                                        <div>
+                                            <div class="fw-bold">{{ file.split('_', 1)[1] if '_' in file else file }}</div>
+                                            <small class="text-muted">{{ file }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    {% if file.endswith('.tgz') %}
+                                        <span class="badge bg-success">TGZ</span>
+                                    {% elif file.endswith('.tar.gz') %}
+                                        <span class="badge bg-info">TAR.GZ</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">ZIP</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="text-muted">
+                                        {{ file.split('_')[0] if '_' in file else 'Unknown' }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="{{ url_for('analyze', filename=file) }}" 
+                                       class="btn btn-outline-primary btn-sm">
+                                        <i class="bi bi-graph-up me-1"></i>
+                                        Analyze
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body text-center py-5">
+                <div class="display-4 text-muted mb-3">
+                    <i class="bi bi-inbox"></i>
+                </div>
+                <h3 class="card-title">No Mockup Files Found</h3>
+                <p class="card-text text-muted mb-4">
+                    Upload a Redfish mockup file to get started with metric analysis and MRD generation.
+                </p>
+                <a href="{{ url_for('upload_file') }}" class="btn btn-primary btn-lg">
+                    <i class="bi bi-cloud-upload me-2"></i>
+                    Upload Your First Mockup
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

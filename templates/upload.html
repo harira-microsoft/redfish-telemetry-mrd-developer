@@ -1,0 +1,211 @@
+{% extends "base.html" %}
+
+{% block title %}Upload Mockup - Redfish Telemetry MRD Developer{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">
+        <i class="bi bi-cloud-upload me-2"></i>
+        Upload Mockup
+    </h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a href="{{ url_for('index') }}" class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>
+            Back to Dashboard
+        </a>
+    </div>
+</div>
+
+<!-- Progress Steps -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="step-indicator">
+            <div class="step active">
+                <div class="step-circle">1</div>
+                <h6>Upload Mockup</h6>
+            </div>
+            <div class="step">
+                <div class="step-circle">2</div>
+                <h6>Analyze Metrics</h6>
+            </div>
+            <div class="step">
+                <div class="step-circle">3</div>
+                <h6>Configure MRDs</h6>
+            </div>
+            <div class="step">
+                <div class="step-circle">4</div>
+                <h6>Generate & Download</h6>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Upload Form -->
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-file-earmark-zip me-2"></i>
+                    Select Redfish Mockup File
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data" id="upload-form">
+                    <div class="mb-4">
+                        <label for="mockup_file" class="form-label">Choose mockup file</label>
+                        <input type="file" class="form-control" id="mockup_file" name="mockup_file" 
+                               accept=".tgz,.tar.gz,.zip" required>
+                        <div class="form-text">
+                            Supported formats: .tgz, .tar.gz, .zip (Max size: 100MB)
+                        </div>
+                    </div>
+
+                    <div class="upload-preview" id="upload-preview" style="display: none;">
+                        <div class="alert alert-info d-flex align-items-center">
+                            <i class="bi bi-info-circle me-2"></i>
+                            <div>
+                                <strong>File selected:</strong> <span id="file-name"></span><br>
+                                <small>Size: <span id="file-size"></span></small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="progress-wrapper" id="upload-progress">
+                        <div class="mb-2">
+                            <small class="text-muted">Uploading...</small>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                                 role="progressbar" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <button type="button" class="btn btn-secondary me-md-2" onclick="location.reload()">
+                            <i class="bi bi-arrow-clockwise me-1"></i>
+                            Reset
+                        </button>
+                        <button type="submit" class="btn btn-primary" id="upload-btn">
+                            <i class="bi bi-cloud-upload me-1"></i>
+                            Upload & Analyze
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Instructions -->
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi-lightbulb me-2"></i>
+                    Supported Mockup Types
+                </h6>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled mb-0">
+                    <li class="mb-2">
+                        <i class="bi bi-check-circle text-success me-2"></i>
+                        <strong>BMC Mockups:</strong> Full system BMC mockup data
+                    </li>
+                    <li class="mb-2">
+                        <i class="bi bi-check-circle text-success me-2"></i>
+                        <strong>RAS Mockups:</strong> Reliability, Availability, Serviceability data
+                    </li>
+                    <li class="mb-2">
+                        <i class="bi bi-check-circle text-success me-2"></i>
+                        <strong>Telemetry Data:</strong> Sensor and metric information
+                    </li>
+                    <li class="mb-0">
+                        <i class="bi bi-check-circle text-success me-2"></i>
+                        <strong>Multi-part Mockups:</strong> Complex system configurations
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi-gear me-2"></i>
+                    What Happens Next
+                </h6>
+            </div>
+            <div class="card-body">
+                <ol class="list-unstyled mb-0">
+                    <li class="mb-2">
+                        <span class="badge bg-primary rounded-pill me-2">1</span>
+                        File is uploaded and validated
+                    </li>
+                    <li class="mb-2">
+                        <span class="badge bg-primary rounded-pill me-2">2</span>
+                        Mockup data is parsed and analyzed
+                    </li>
+                    <li class="mb-2">
+                        <span class="badge bg-primary rounded-pill me-2">3</span>
+                        Metrics are classified by type
+                    </li>
+                    <li class="mb-0">
+                        <span class="badge bg-primary rounded-pill me-2">4</span>
+                        Results are displayed for review
+                    </li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('mockup_file').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    const preview = document.getElementById('upload-preview');
+    const fileName = document.getElementById('file-name');
+    const fileSize = document.getElementById('file-size');
+    
+    if (file) {
+        fileName.textContent = file.name;
+        fileSize.textContent = formatFileSize(file.size);
+        preview.style.display = 'block';
+    } else {
+        preview.style.display = 'none';
+    }
+});
+
+document.getElementById('upload-form').addEventListener('submit', function(e) {
+    const uploadBtn = document.getElementById('upload-btn');
+    const progressWrapper = document.getElementById('upload-progress');
+    
+    uploadBtn.disabled = true;
+    uploadBtn.innerHTML = '<i class="bi bi-hourglass-split me-1"></i> Uploading...';
+    progressWrapper.style.display = 'block';
+    
+    // Simulate progress (real implementation would use XMLHttpRequest for progress)
+    let progress = 0;
+    const progressBar = document.querySelector('.progress-bar');
+    const interval = setInterval(() => {
+        progress += Math.random() * 15;
+        if (progress >= 100) {
+            progress = 100;
+            clearInterval(interval);
+        }
+        progressBar.style.width = progress + '%';
+    }, 200);
+});
+
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+</script>
+{% endblock %}

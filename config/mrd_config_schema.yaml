@@ -1,0 +1,90 @@
+# MRD Configuration Schema
+# This file defines the structure and options for configuring MRD generation
+
+# Global MRD Properties
+# These settings apply to all generated MRDs unless overridden per metric type
+
+# Report Actions - Actions to take when metrics are collected
+# Options: "RedfishEvent", "LogToMetricReportsCollection", "CollectionTimeSpecified"
+report_actions:
+  - "RedfishEvent"
+  - "LogToMetricReportsCollection"
+
+# Report Updates - How to handle new metric reports
+# Options: "Overwrite", "AppendWrapsWhenFull", "AppendStopsWhenFull", "NewReport"
+report_updates: "Overwrite"
+
+# Append Limit - Maximum number of reports to store (only relevant for append modes)
+append_limit: 100
+
+# Heartbeat Interval - ISO 8601 duration for heartbeat reporting
+# "PT0S" = No heartbeat, "PT30S" = 30 seconds, "PT5M" = 5 minutes
+heartbeat_interval: "PT0S"
+
+# Recurrence Interval - ISO 8601 duration for scheduled reporting
+# "PT60S" = 60 seconds, "PT5M" = 5 minutes, "PT1H" = 1 hour
+recurrence_interval: "PT60S"
+
+# Per-Metric-Type Configuration
+# Override global settings for specific metric types
+metric_type_configs:
+  EnvironmentMetrics:
+    report_actions: ["RedfishEvent"]
+    recurrence_interval: "PT30S"  # More frequent for environmental data
+    heartbeat_interval: "PT5M"
+  
+  ProcessorMetrics:
+    recurrence_interval: "PT10S"  # High frequency for performance metrics
+    
+  AlarmsMetrics:
+    report_actions: ["RedfishEvent", "LogToMetricReportsCollection"]
+    report_updates: "AppendStopsWhenFull"
+    append_limit: 500
+
+# Custom MetricId Mappings
+# Map original metric identifiers to custom MetricIds
+metric_mappings:
+  # Direct mappings
+  "Temp CPU0_Temperature": "CPU0_CoreTemperature"
+  "Fan 1A_FanSpeed": "SystemFan_1A_RPM"
+  
+  # Pattern-based mappings (use * as wildcard)
+  "Temp DIMM *_Temperature": "Memory_{source_id}_Temperature"
+  "Fan *_FanSpeed": "CoolingFan_{source_id}_Speed"
+  
+  # Processor mappings
+  "CPU*_Utilization": "Processor_{source_id}_Usage"
+
+# Custom MetricProperties Mappings
+# Map MetricIds to specific Redfish property URIs
+metric_properties_mappings:
+  "CPU0_CoreTemperature":
+    - "/redfish/v1/Systems/1/Processors/CPU0/Metrics#Temperature"
+  
+  "SystemFan_1A_RPM":
+    - "/redfish/v1/Chassis/1/ThermalSubsystem/Fans/1A#SpeedRPM"
+  
+  "Memory_DIMM_A_Temperature":
+    - "/redfish/v1/Systems/1/Memory/DIMM_A#TemperatureCelsius"
+    - "/redfish/v1/Systems/1/Memory/DIMM_A/Metrics#Temperature"
+  
+  # Multiple properties for comprehensive monitoring
+  "ProcessorUtilization":
+    - "/redfish/v1/Systems/1/Processors/CPU0#ProcessorMetrics/AverageFrequency"
+    - "/redfish/v1/Systems/1/Processors/CPU0#ProcessorMetrics/ConsumedPowerWatt"
+
+# URI Template Configurations
+# Define custom URI patterns for different resource types
+uri_templates:
+  processor_metrics: "/redfish/v1/Systems/{system_id}/Processors/{processor_id}/Metrics#{property}"
+  memory_metrics: "/redfish/v1/Systems/{system_id}/Memory/{memory_id}/Metrics#{property}"
+  thermal_metrics: "/redfish/v1/Chassis/{chassis_id}/ThermalSubsystem/Sensors/{sensor_id}#{property}"
+  power_metrics: "/redfish/v1/Chassis/{chassis_id}/PowerSubsystem/PowerSupplies/{psu_id}/Metrics#{property}"
+
+# Validation Rules
+# Define validation constraints for generated MRDs
+validation:
+  max_metrics_per_mrd: 1000
+  required_properties: ["MetricId", "MetricProperties"]
+  allowed_data_types: ["Number", "String", "Boolean", "DateTime", "Duration"]
+  max_metric_id_length: 64

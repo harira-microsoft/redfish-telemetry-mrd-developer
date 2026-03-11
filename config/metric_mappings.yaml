@@ -1,0 +1,193 @@
+# Metric Classification Mappings Configuration
+# This file defines how different resources and properties are classified into metric types
+
+PlatformMetrics:
+  keywords:
+    - platform
+    - system
+    - board
+    - motherboard
+    - chassis
+    - uptime
+    - boot
+    - reset
+    - power_state
+    - health
+  properties:
+    - PowerState
+    - BootProgress
+    - SystemType
+    - ProcessorSummary
+    - MemorySummary
+    - Status
+    - PowerRestorePolicy
+    - HostName
+    - UUID
+  resource_types:
+    - system
+    - chassis
+    - manager
+
+EnvironmentMetrics:
+  keywords:
+    - temperature
+    - thermal
+    - fan
+    - cooling
+    - ambient
+    - inlet
+    - outlet
+    - airflow
+    - humidity
+    - pressure
+    - voltage
+    - current
+  properties:
+    - ReadingCelsius
+    - UpperThresholdCritical
+    - LowerThresholdCritical
+    - UpperThresholdNonCritical
+    - LowerThresholdNonCritical
+    - Reading
+    - SpeedRPM
+    - SpeedPercent
+    - ReadingVolts
+    - ReadingAmperes
+  resource_types:
+    - temperature
+    - fan
+    - sensor
+    - power_supply
+  sensor_types:
+    - Temperature
+    - Fan
+    - Humidity
+    - Pressure
+    - Voltage
+    - Current
+
+ProcessorMetrics:
+  keywords:
+    - cpu
+    - processor
+    - core
+    - thread
+    - frequency
+    - utilization
+    - cache
+    - instruction
+    - performance
+    - turbo
+    - throttle
+  properties:
+    - MaxSpeedMHz
+    - TotalCores
+    - TotalThreads
+    - ProcessorType
+    - InstructionSet
+    - Manufacturer
+    - Model
+    - Utilization
+    - CurrentSpeedMHz
+    - ProcessorArchitecture
+  resource_types:
+    - processor
+  sensor_types:
+    - Frequency
+    - Utilization
+    - Power
+
+MemoryMetrics:
+  keywords:
+    - memory
+    - ram
+    - dimm
+    - dram
+    - capacity
+    - bandwidth
+    - ecc
+    - error
+    - correctable
+    - uncorrectable
+  properties:
+    - CapacityMiB
+    - OperatingSpeedMhz
+    - MemoryType
+    - DataWidthBits
+    - ErrorCorrection
+    - RankCount
+    - MemoryMedia
+    - MemoryDeviceType
+    - AllowedSpeedsMHz
+  resource_types:
+    - memory
+  sensor_types:
+    - Utilization
+    - BandwidthPercent
+    - Power
+
+AlarmsMetrics:
+  keywords:
+    - alarm
+    - alert
+    - fault
+    - error
+    - critical
+    - warning
+    - emergency
+    - notification
+    - event
+    - log
+    - failure
+  properties:
+    - Health
+    - State
+    - HealthRollup
+    - Severity
+    - MessageId
+    - AlarmType
+    - AlarmStatus
+    - EventType
+    - EventId
+  resource_types:
+    - log_entry
+    - event
+    - alarm
+  sensor_types:
+    - Alarm
+    - Fault
+
+StatusAndCounterMetrics:
+  keywords:
+    - counter
+    - count
+    - rate
+    - packets
+    - bytes
+    - errors
+    - drops
+    - statistics
+    - performance
+    - throughput
+    - bandwidth
+    - latency
+  properties:
+    - PacketsReceived
+    - PacketsSent
+    - BytesReceived
+    - BytesSent
+    - ErrorsReceived
+    - ErrorsSent
+    - DroppedPackets
+    - Collisions
+    - LinkStatus
+    - SpeedMbps
+    - FullDuplex
+  resource_types:
+    - network_interface
+    - port
+    - ethernet_interface
+  sensor_types:
+    - Counter
+    - Rate
+    - Percent

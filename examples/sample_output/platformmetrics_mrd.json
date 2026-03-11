@@ -1,0 +1,50 @@
+{
+  "@odata.type": "#MetricReportDefinition.v1_3_0.MetricReportDefinition",
+  "@odata.id": "/redfish/v1/TelemetryService/MetricReportDefinitions/PlatformMetricsReport",
+  "Id": "PlatformMetricsReport",
+  "Name": "PlatformMetrics Report Definition",
+  "Description": "Metric report definition for platform metrics",
+  "MetricReport": {
+    "@odata.id": "/redfish/v1/TelemetryService/MetricReports/PlatformMetricsReport"
+  },
+  "Status": {
+    "State": "Enabled",
+    "Health": "OK"
+  },
+  "ReportActions": [
+    "RedfishEvent",
+    "LogToMetricReportsCollection"
+  ],
+  "ReportUpdates": "Overwrite",
+  "AppendLimit": 100,
+  "MetricReportHeartbeatInterval": "PT0S",
+  "Wildcards": [],
+  "Metrics": [
+    {
+      "MetricId": "System_PowerState",
+      "MetricProperties": [
+        "/redfish/v1/Systems/1#PowerState"
+      ],
+      "DataType": "String"
+    },
+    {
+      "MetricId": "System_SystemHealth",
+      "MetricProperties": [
+        "/redfish/v1/Systems/1#Status.Health"
+      ],
+      "DataType": "String"
+    },
+    {
+      "MetricId": "System_BootProgress",
+      "MetricProperties": [
+        "/redfish/v1/Systems/1#BootProgress.LastState"
+      ],
+      "DataType": "String"
+    }
+  ],
+  "ReportTimespan": "PT0S",
+  "Schedule": {
+    "RecurrenceInterval": "PT60S"
+  },
+  "CollectionFunction": "Average"
+}

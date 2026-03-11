@@ -1,0 +1,27 @@
+{
+  "@odata.type": "#MetricReportDefinitionCollection.MetricReportDefinitionCollection",
+  "@odata.id": "/redfish/v1/TelemetryService/MetricReportDefinitions",
+  "Name": "Metric Report Definition Collection",
+  "Description": "Collection of metric report definitions generated from mockup data",
+  "Members@odata.count": 6,
+  "Members": [
+    {
+      "@odata.id": "/redfish/v1/TelemetryService/MetricReportDefinitions/PlatformMetricsReport"
+    },
+    {
+      "@odata.id": "/redfish/v1/TelemetryService/MetricReportDefinitions/EnvironmentMetricsReport"
+    },
+    {
+      "@odata.id": "/redfish/v1/TelemetryService/MetricReportDefinitions/ProcessorMetricsReport"
+    },
+    {
+      "@odata.id": "/redfish/v1/TelemetryService/MetricReportDefinitions/MemoryMetricsReport"
+    },
+    {
+      "@odata.id": "/redfish/v1/TelemetryService/MetricReportDefinitions/AlarmsMetricsReport"
+    },
+    {
+      "@odata.id": "/redfish/v1/TelemetryService/MetricReportDefinitions/StatusAndCounterMetricsReport"
+    }
+  ]
+}

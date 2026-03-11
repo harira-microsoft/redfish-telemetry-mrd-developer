@@ -1,0 +1,55 @@
+{
+  "@odata.type": "#MetricReportDefinition.v1_3_0.MetricReportDefinition",
+  "@odata.id": "/redfish/v1/TelemetryService/MetricReportDefinitions/EnvironmentMetricsReport",
+  "Id": "EnvironmentMetricsReport",
+  "Name": "EnvironmentMetrics Report Definition",
+  "Description": "Metric report definition for environment metrics",
+  "MetricReport": {
+    "@odata.id": "/redfish/v1/TelemetryService/MetricReports/EnvironmentMetricsReport"
+  },
+  "Status": {
+    "State": "Enabled",
+    "Health": "OK"
+  },
+  "ReportActions": [
+    "RedfishEvent",
+    "LogToMetricReportsCollection"
+  ],
+  "ReportUpdates": "Overwrite",
+  "AppendLimit": 100,
+  "MetricReportHeartbeatInterval": "PT0S",
+  "Wildcards": [],
+  "Metrics": [
+    {
+      "MetricId": "CPU_Temperature",
+      "MetricProperties": [
+        "/redfish/v1/Chassis/1/Thermal#/Temperatures/CPU#ReadingCelsius"
+      ],
+      "DataType": "Number",
+      "Units": "Cel",
+      "Thresholds": {
+        "UpperCritical": {
+          "Reading": 85.0,
+          "Activation": "Increasing"
+        },
+        "UpperCaution": {
+          "Reading": 75.0,
+          "Activation": "Increasing"
+        }
+      }
+    },
+    {
+      "MetricId": "SystemFan1_FanSpeed",
+      "MetricProperties": [
+        "/redfish/v1/Chassis/1/Thermal#/Fans/SystemFan1#Reading"
+      ],
+      "DataType": "Number",
+      "Units": "RPM"
+    }
+  ],
+  "ReportTimespan": "PT0S",
+  "Schedule": {
+    "RecurrenceInterval": "PT60S"
+  },
+  "CollectionFunction": "Average"
+}

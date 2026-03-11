@@ -1,0 +1,437 @@
+{% extends "base.html" %}
+
+{% block title %}Configure MRDs - Redfish Telemetry MRD Developer{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">
+        <i class="bi bi-gear me-2"></i>
+        Configure MRDs
+    </h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                <i class="bi bi-file-text me-1"></i>
+                Load Template
+            </button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="#" onclick="loadConfig('basic')">Basic Configuration</a></li>
+                <li><a class="dropdown-item" href="#" onclick="loadConfig('performance')">High Performance</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="#" onclick="resetConfig()">Reset to Default</a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- Progress Steps -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="step-indicator">
+            <div class="step completed">
+                <div class="step-circle">1</div>
+                <h6>Upload Mockup</h6>
+            </div>
+            <div class="step completed">
+                <div class="step-circle">2</div>
+                <h6>Analyze Metrics</h6>
+            </div>
+            <div class="step active">
+                <div class="step-circle">3</div>
+                <h6>Configure MRDs</h6>
+            </div>
+            <div class="step">
+                <div class="step-circle">4</div>
+                <h6>Generate & Download</h6>
+            </div>
+        </div>
+    </div>
+</div>
+
+<form id="config-form">
+    <input type="hidden" id="mockup-filename" value="{{ filename }}">
+    
+    <!-- Metric Type Selection -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-check2-square me-2"></i>
+                        Select Metric Types
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for metric_type in metric_types %}
+                        <div class="col-md-4 mb-2">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" 
+                                       id="metric_{{ metric_type }}" name="selected_types" 
+                                       value="{{ metric_type }}" 
+                                       {% if metric_type in config.selected_types %}checked{% endif %}>
+                                <label class="form-check-label" for="metric_{{ metric_type }}">
+                                    {{ metric_type.replace('Metrics', ' Metrics') }}
+                                </label>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Global Settings -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="bi bi-sliders me-2"></i>
+                        Global MRD Settings
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="report_updates" class="form-label">Report Updates</label>
+                        <select class="form-select" id="report_updates" name="report_updates">
+                            <option value="Overwrite" {% if config.report_updates == 'Overwrite' %}selected{% endif %}>Overwrite</option>
+                            <option value="AppendWrapsWhenFull" {% if config.report_updates == 'AppendWrapsWhenFull' %}selected{% endif %}>Append Wraps When Full</option>
+                            <option value="AppendStopsWhenFull" {% if config.report_updates == 'AppendStopsWhenFull' %}selected{% endif %}>Append Stops When Full</option>
+                            <option value="NewReport" {% if config.report_updates == 'NewReport' %}selected{% endif %}>New Report</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="append_limit" class="form-label">Append Limit</label>
+                        <input type="number" class="form-control" id="append_limit" 
+                               name="append_limit" value="{{ config.append_limit }}" min="1">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="recurrence_interval" class="form-label">Recurrence Interval (ISO 8601)</label>
+                        <select class="form-select" id="recurrence_interval" name="recurrence_interval">
+                            <option value="PT1S" {% if config.recurrence_interval == 'PT1S' %}selected{% endif %}>1 Second</option>
+                            <option value="PT5S" {% if config.recurrence_interval == 'PT5S' %}selected{% endif %}>5 Seconds</option>
+                            <option value="PT10S" {% if config.recurrence_interval == 'PT10S' %}selected{% endif %}>10 Seconds</option>
+                            <option value="PT30S" {% if config.recurrence_interval == 'PT30S' %}selected{% endif %}>30 Seconds</option>
+                            <option value="PT60S" {% if config.recurrence_interval == 'PT60S' %}selected{% endif %}>60 Seconds</option>
+                            <option value="PT5M" {% if config.recurrence_interval == 'PT5M' %}selected{% endif %}>5 Minutes</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="heartbeat_interval" class="form-label">Heartbeat Interval (ISO 8601)</label>
+                        <select class="form-select" id="heartbeat_interval" name="heartbeat_interval">
+                            <option value="PT0S" {% if config.heartbeat_interval == 'PT0S' %}selected{% endif %}>No Heartbeat</option>
+                            <option value="PT30S" {% if config.heartbeat_interval == 'PT30S' %}selected{% endif %}>30 Seconds</option>
+                            <option value="PT1M" {% if config.heartbeat_interval == 'PT1M' %}selected{% endif %}>1 Minute</option>
+                            <option value="PT5M" {% if config.heartbeat_interval == 'PT5M' %}selected{% endif %}>5 Minutes</option>
+                            <option value="PT10M" {% if config.heartbeat_interval == 'PT10M' %}selected{% endif %}>10 Minutes</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="bi bi-lightning me-2"></i>
+                        Report Actions
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="form-text mb-3">
+                        Select what actions to take when metrics are collected:
+                    </div>
+                    
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="action_redfish" 
+                               name="report_actions" value="RedfishEvent"
+                               {% if 'RedfishEvent' in config.report_actions %}checked{% endif %}>
+                        <label class="form-check-label" for="action_redfish">
+                            <strong>Redfish Event</strong><br>
+                            <small class="text-muted">Send Redfish events when metrics are collected</small>
+                        </label>
+                    </div>
+                    
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="action_log" 
+                               name="report_actions" value="LogToMetricReportsCollection"
+                               {% if 'LogToMetricReportsCollection' in config.report_actions %}checked{% endif %}>
+                        <label class="form-check-label" for="action_log">
+                            <strong>Log to Collection</strong><br>
+                            <small class="text-muted">Store reports in the metrics collection</small>
+                        </label>
+                    </div>
+                    
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="action_time" 
+                               name="report_actions" value="CollectionTimeSpecified"
+                               {% if 'CollectionTimeSpecified' in config.report_actions %}checked{% endif %}>
+                        <label class="form-check-label" for="action_time">
+                            <strong>Time Specified Collection</strong><br>
+                            <small class="text-muted">Collect at specified time intervals only</small>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Per-Type Configuration -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">
+                        <i class="bi bi-tools me-2"></i>
+                        Per-Type Configuration (Optional)
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="accordion" id="typeConfigAccordion">
+                        {% set type_configs = {
+                            'EnvironmentMetrics': {'icon': 'bi-thermometer-half', 'color': 'success'},
+                            'ProcessorMetrics': {'icon': 'bi-cpu', 'color': 'warning'},
+                            'MemoryMetrics': {'icon': 'bi-memory', 'color': 'info'},
+                            'PlatformMetrics': {'icon': 'bi-box', 'color': 'primary'}
+                        } %}
+                        
+                        {% for metric_type, type_info in type_configs.items() %}
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="heading{{ metric_type }}">
+                                <button class="accordion-button collapsed" type="button" 
+                                        data-bs-toggle="collapse" data-bs-target="#collapse{{ metric_type }}">
+                                    <i class="{{ type_info.icon }} text-{{ type_info.color }} me-2"></i>
+                                    {{ metric_type.replace('Metrics', ' Metrics') }} Settings
+                                </button>
+                            </h2>
+                            <div id="collapse{{ metric_type }}" class="accordion-collapse collapse" 
+                                 data-bs-parent="#typeConfigAccordion">
+                                <div class="accordion-body">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <label for="{{ metric_type }}_interval" class="form-label">Recurrence Interval</label>
+                                            <select class="form-select" id="{{ metric_type }}_interval" 
+                                                    name="metric_type_configs[{{ metric_type }}][recurrence_interval]">
+                                                <option value="">Use Global Setting</option>
+                                                <option value="PT1S">1 Second</option>
+                                                <option value="PT5S">5 Seconds</option>
+                                                <option value="PT10S">10 Seconds</option>
+                                                <option value="PT30S">30 Seconds</option>
+                                                <option value="PT60S">60 Seconds</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label for="{{ metric_type }}_heartbeat" class="form-label">Heartbeat Interval</label>
+                                            <select class="form-select" id="{{ metric_type }}_heartbeat" 
+                                                    name="metric_type_configs[{{ metric_type }}][heartbeat_interval]">
+                                                <option value="">Use Global Setting</option>
+                                                <option value="PT0S">No Heartbeat</option>
+                                                <option value="PT1M">1 Minute</option>
+                                                <option value="PT5M">5 Minutes</option>
+                                                <option value="PT10M">10 Minutes</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Report Actions Override</label>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" 
+                                                       id="{{ metric_type }}_event" value="RedfishEvent"
+                                                       name="metric_type_configs[{{ metric_type }}][report_actions]">
+                                                <label class="form-check-label small" for="{{ metric_type }}_event">
+                                                    Redfish Event Only
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Generate Button -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Generate MRDs</h5>
+                    <p class="card-text">Review your configuration and generate Redfish v1.3.0 compliant MRDs.</p>
+                    
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                        <button type="button" class="btn btn-outline-secondary" onclick="previewConfig()">
+                            <i class="bi bi-eye me-2"></i>
+                            Preview Configuration
+                        </button>
+                        <button type="submit" class="btn btn-success btn-lg" id="generate-btn">
+                            <i class="bi bi-play-circle me-2"></i>
+                            Generate MRDs
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<!-- Loading Modal -->
+<div class="modal fade" id="loadingModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body text-center py-4">
+                <div class="spinner-border text-primary mb-3" role="status"></div>
+                <h5>Generating MRDs...</h5>
+                <p class="text-muted mb-0">This may take a few moments</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Load predefined configurations
+function loadConfig(type) {
+    fetch(`/api/config/load/${type}`)
+        .then(response => response.json())
+        .then(config => {
+            // Populate form with loaded configuration
+            populateForm(config);
+            showAlert(`${type.charAt(0).toUpperCase() + type.slice(1)} configuration loaded!`, 'success');
+        })
+        .catch(error => {
+            showAlert('Failed to load configuration', 'danger');
+        });
+}
+
+function populateForm(config) {
+    // Populate global settings
+    if (config.report_updates) document.getElementById('report_updates').value = config.report_updates;
+    if (config.append_limit) document.getElementById('append_limit').value = config.append_limit;
+    if (config.recurrence_interval) document.getElementById('recurrence_interval').value = config.recurrence_interval;
+    if (config.heartbeat_interval) document.getElementById('heartbeat_interval').value = config.heartbeat_interval;
+    
+    // Populate report actions
+    const actionCheckboxes = document.querySelectorAll('input[name="report_actions"]');
+    actionCheckboxes.forEach(cb => cb.checked = false);
+    if (config.report_actions) {
+        config.report_actions.forEach(action => {
+            const checkbox = document.querySelector(`input[value="${action}"]`);
+            if (checkbox) checkbox.checked = true;
+        });
+    }
+}
+
+function resetConfig() {
+    document.getElementById('config-form').reset();
+    showAlert('Configuration reset to defaults', 'info');
+}
+
+function previewConfig() {
+    const config = collectFormData();
+    const previewData = JSON.stringify(config, null, 2);
+    alert('Configuration Preview:\n\n' + previewData);
+}
+
+function collectFormData() {
+    const formData = new FormData(document.getElementById('config-form'));
+    const config = {};
+    
+    // Collect selected metric types
+    const selectedTypes = [];
+    formData.getAll('selected_types').forEach(type => selectedTypes.push(type));
+    config.selected_types = selectedTypes;
+    
+    // Collect global settings
+    config.report_updates = formData.get('report_updates');
+    config.append_limit = parseInt(formData.get('append_limit'));
+    config.recurrence_interval = formData.get('recurrence_interval');
+    config.heartbeat_interval = formData.get('heartbeat_interval');
+    
+    // Collect report actions
+    const reportActions = [];
+    formData.getAll('report_actions').forEach(action => reportActions.push(action));
+    config.report_actions = reportActions;
+    
+    // Add filename
+    config.filename = document.getElementById('mockup-filename').value;
+    
+    return config;
+}
+
+// Form submission
+document.getElementById('config-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const config = collectFormData();
+    const filename = config.filename;
+    
+    if (!filename) {
+        showAlert('No mockup file selected', 'danger');
+        return;
+    }
+    
+    if (config.selected_types.length === 0) {
+        showAlert('Please select at least one metric type', 'warning');
+        return;
+    }
+    
+    // Show loading modal
+    const loadingModal = new bootstrap.Modal(document.getElementById('loadingModal'));
+    loadingModal.show();
+    
+    // Send request to generate MRDs
+    fetch('/generate', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            filename: filename,
+            config: config
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        loadingModal.hide();
+        
+        if (data.success) {
+            // Redirect to results page
+            window.location.href = `/results/${data.output_dir}`;
+        } else {
+            showAlert(data.error || 'Failed to generate MRDs', 'danger');
+        }
+    })
+    .catch(error => {
+        loadingModal.hide();
+        showAlert('Error generating MRDs: ' + error.message, 'danger');
+    });
+});
+
+function showAlert(message, type) {
+    const alert = document.createElement('div');
+    alert.className = `alert alert-${type} alert-dismissible fade show`;
+    alert.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    document.querySelector('main').insertBefore(alert, document.querySelector('main').firstChild);
+    
+    // Auto-dismiss after 5 seconds
+    setTimeout(() => {
+        if (alert.parentNode) {
+            alert.remove();
+        }
+    }, 5000);
+}
+</script>
+{% endblock %}

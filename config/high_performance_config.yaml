@@ -1,0 +1,65 @@
+# High-Frequency Monitoring Configuration
+# Optimized for real-time performance monitoring
+
+# Global settings for high-frequency monitoring
+report_actions: ["RedfishEvent"]
+report_updates: "Overwrite"
+append_limit: 50
+heartbeat_interval: "PT0S"  # No heartbeat for performance
+recurrence_interval: "PT5S"  # 5-second global default
+
+# Per-metric-type optimizations
+metric_type_configs:
+  EnvironmentMetrics:
+    recurrence_interval: "PT15S"  # Environmental data doesn't change as quickly
+    heartbeat_interval: "PT2M"
+    report_actions: ["LogToMetricReportsCollection"]
+  
+  ProcessorMetrics:
+    recurrence_interval: "PT1S"   # 1-second updates for CPU
+    report_actions: ["RedfishEvent"]
+  
+  MemoryMetrics:
+    recurrence_interval: "PT3S"   # 3-second updates for memory
+    
+  AlarmsMetrics:
+    report_actions: ["RedfishEvent", "LogToMetricReportsCollection"]
+    report_updates: "AppendStopsWhenFull"
+    append_limit: 200
+
+# Performance-focused MetricId mappings
+metric_mappings:
+  # CPU temperature mapping (updated for underscore format)
+  "Temp_CPU0_Temperature": "CPU0_CoreTemp_C"
+  
+  # Fan mappings with clear naming (updated for underscore format)
+  "Fan_1A_FanSpeed": "SystemFan_01A_RPM"
+  "Fan_1B_FanSpeed": "SystemFan_01B_RPM"
+  "Fan_2A_FanSpeed": "SystemFan_02A_RPM"
+  "Fan_2B_FanSpeed": "SystemFan_02B_RPM"
+  
+  # PSU fan mappings (updated for underscore format)
+  "Fan_PSU_1_FanSpeed": "PSU1_Fan_RPM"
+  "Fan_PSU_2_FanSpeed": "PSU2_Fan_RPM"
+  "Fan_PSU_3_FanSpeed": "PSU3_Fan_RPM"
+  
+  # Temperature mappings for key sensors (updated for underscore format)
+  "Temp_Inlet_Temperature": "Chassis_InletTemp_C"
+  "Temp_PSU_HOTSPOT_Temperature": "PSU_HotspotTemp_C"
+  "Temp_PSU_INLET_Temperature": "PSU_InletTemp_C"
+  "Temp_PSU_OUTLET_Temperature": "PSU_OutletTemp_C"
+
+# Map to specific Redfish 1.3.0 URIs for better performance
+metric_properties_mappings:
+  "CPU0_CoreTemp_C":
+    - "/redfish/v1/Systems/1/Processors/CPU0/Metrics#TemperatureCelsius"
+  
+  "Chassis_InletTemp_C":
+    - "/redfish/v1/Chassis/1/ThermalSubsystem/Sensors/InletTemp#ReadingCelsius"
+  
+  "SystemFan_01A_RPM":
+    - "/redfish/v1/Chassis/1/ThermalSubsystem/Fans/1A#SpeedRPM"
+    - "/redfish/v1/Chassis/1/ThermalSubsystem/Fans/1A#SpeedPercent"
+  
+  "PSU1_Fan_RPM":
+    - "/redfish/v1/Chassis/1/PowerSubsystem/PowerSupplies/PSU1/Fans/1#SpeedRPM"

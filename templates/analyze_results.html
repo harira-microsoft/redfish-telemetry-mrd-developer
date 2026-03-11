@@ -1,0 +1,211 @@
+{% extends "base.html" %}
+
+{% block title %}Analyze Results - Redfish Telemetry MRD Developer{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">
+        <i class="bi bi-graph-up me-2"></i>
+        Analysis Results
+    </h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <div class="btn-group me-2">
+            <a href="{{ url_for('configure', filename=data.filename) }}" class="btn btn-primary">
+                <i class="bi bi-gear me-1"></i>
+                Configure MRDs
+            </a>
+        </div>
+        <a href="{{ url_for('upload_file') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>
+            Upload New File
+        </a>
+    </div>
+</div>
+
+<!-- Progress Steps -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="step-indicator">
+            <div class="step completed">
+                <div class="step-circle">1</div>
+                <h6>Upload Mockup</h6>
+            </div>
+            <div class="step active">
+                <div class="step-circle">2</div>
+                <h6>Analyze Metrics</h6>
+            </div>
+            <div class="step">
+                <div class="step-circle">3</div>
+                <h6>Configure MRDs</h6>
+            </div>
+            <div class="step">
+                <div class="step-circle">4</div>
+                <h6>Generate & Download</h6>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Summary Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <div class="display-6 text-primary mb-2">
+                    <i class="bi bi-file-earmark"></i>
+                </div>
+                <h5 class="card-title">{{ data.filename }}</h5>
+                <p class="card-text small text-muted">Mockup File</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <div class="display-6 text-success mb-2">{{ data.total_sources }}</div>
+                <h6 class="card-title">Metric Sources</h6>
+                <p class="card-text small text-muted">Total Discovered</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <div class="display-6 text-info mb-2">{{ data.total_metrics }}</div>
+                <h6 class="card-title">Total Metrics</h6>
+                <p class="card-text small text-muted">Classified</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <div class="display-6 text-warning mb-2">{{ data.metric_types | length }}</div>
+                <h6 class="card-title">Metric Types</h6>
+                <p class="card-text small text-muted">Categories Found</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Mockup Information -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-info-circle me-2"></i>
+                    Mockup Information
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="bi bi-cpu text-primary me-2"></i>
+                            <span><strong>Systems:</strong> {{ data.mockup_info.systems }}</span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="bi bi-box text-success me-2"></i>
+                            <span><strong>Chassis:</strong> {{ data.mockup_info.chassis }}</span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="bi bi-gear text-info me-2"></i>
+                            <span><strong>Managers:</strong> {{ data.mockup_info.managers }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Metrics by Type -->
+<div class="row">
+    {% for metric_type, metric_data in data.metric_types.items() %}
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="mb-0">
+                    {% if metric_type == 'PlatformMetrics' %}
+                        <i class="bi bi-cpu text-primary me-2"></i>
+                    {% elif metric_type == 'EnvironmentMetrics' %}
+                        <i class="bi bi-thermometer-half text-success me-2"></i>
+                    {% elif metric_type == 'ProcessorMetrics' %}
+                        <i class="bi bi-processor text-warning me-2"></i>
+                    {% elif metric_type == 'MemoryMetrics' %}
+                        <i class="bi bi-memory text-info me-2"></i>
+                    {% elif metric_type == 'AlarmsMetrics' %}
+                        <i class="bi bi-exclamation-triangle text-danger me-2"></i>
+                    {% else %}
+                        <i class="bi bi-graph-up-arrow text-secondary me-2"></i>
+                    {% endif %}
+                    {{ metric_type.replace('Metrics', ' Metrics') }}
+                </h6>
+                <span class="badge bg-secondary">{{ metric_data.count }} metrics</span>
+            </div>
+            <div class="card-body">
+                {% if metric_data.metrics %}
+                    <div class="metric-list" style="max-height: 300px; overflow-y: auto;">
+                        {% for metric in metric_data.metrics %}
+                        <div class="d-flex justify-content-between align-items-center py-1 border-bottom">
+                            <div>
+                                <small class="fw-bold">{{ metric.metric_name or 'Unknown' }}</small><br>
+                                <small class="text-muted">{{ metric.source_name[:40] }}{% if metric.source_name|length > 40 %}...{% endif %}</small>
+                            </div>
+                            <small class="text-muted">{{ metric.source_type }}</small>
+                        </div>
+                        {% endfor %}
+                        {% if metric_data.count > 10 %}
+                        <div class="text-center pt-2">
+                            <small class="text-muted">... and {{ metric_data.count - 10 }} more</small>
+                        </div>
+                        {% endif %}
+                    </div>
+                {% else %}
+                    <p class="text-muted mb-0">No metrics found for this type.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Action Buttons -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body text-center">
+                <h5 class="card-title">Ready to Generate MRDs?</h5>
+                <p class="card-text">Configure your MRD settings and generate Redfish-compliant metric report definitions.</p>
+                <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                    <a href="{{ url_for('configure', filename=data.filename) }}" class="btn btn-primary btn-lg">
+                        <i class="bi bi-gear me-2"></i>
+                        Configure MRDs
+                    </a>
+                    <button class="btn btn-outline-secondary btn-lg" onclick="window.location.reload()">
+                        <i class="bi bi-arrow-clockwise me-2"></i>
+                        Re-analyze
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Auto-refresh every 30 seconds if analysis is still running
+let autoRefresh = false;
+if (autoRefresh) {
+    setTimeout(() => {
+        window.location.reload();
+    }, 30000);
+}
+</script>
+{% endblock %}

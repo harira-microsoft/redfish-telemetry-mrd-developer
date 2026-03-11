@@ -1,0 +1,108 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.9, '3.10', '3.11']
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest pytest-cov flake8
+    
+    - name: Lint with flake8
+      run: |
+        # Stop the build if there are Python syntax errors or undefined names
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        # Exit-zero treats all errors as warnings. Line length set to 88 for black compatibility
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=88 --statistics
+    
+    - name: Test CLI functionality
+      run: |
+        python3 mrd_tool.py --help
+        python3 mrd_tool.py examples
+        
+    - name: Test web app imports
+      run: |
+        python3 -c "from app import app; print('Web app imports successfully')"
+        
+    - name: Test core modules
+      run: |
+        python3 -c "from src.mockup_parser import MockupParser; print('MockupParser OK')"
+        python3 -c "from src.metric_classifier import MetricClassifier; print('MetricClassifier OK')"
+        python3 -c "from src.mrd_generator import MRDGenerator; print('MRDGenerator OK')"
+
+    - name: Run unit tests
+      run: |
+        pytest tests/ -v --tb=short
+
+  security:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install bandit safety
+        
+    - name: Run security checks with bandit
+      run: |
+        bandit -r src/ app.py mrd_tool.py
+        
+    - name: Check for known security vulnerabilities
+      run: |
+        safety check
+
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        
+    - name: Validate documentation structure
+      run: |
+        # Check that all markdown files are valid
+        find docs/ -name "*.md" -exec echo "Checking {}" \;
+        
+    - name: Test documentation routes
+      run: |
+        python3 -c "
+        from app import app
+        client = app.test_client()
+        response = client.get('/docs')
+        assert response.status_code == 200
+        print('Documentation routes working')
+        "

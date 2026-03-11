@@ -1,0 +1,462 @@
+{% extends "base.html" %}
+
+{% block title %}Redfish Telemetry MRD Developer - Redfish Metric Report Definition Generator{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="bg-gradient-primary text-white py-5 mb-4">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h1 class="display-4 fw-bold mb-3">
+                    <i class="bi bi-lightning-charge me-3"></i>
+                    Redfish Telemetry MRD Developer
+                </h1>
+                <p class="lead mb-4">
+                    Transform Redfish mockup data into schema-compliant MetricReportDefinitions with ease. 
+                    Generate v1.3.0 compliant MRD files through our intuitive web interface or powerful CLI.
+                </p>
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="{{ url_for('upload_file') }}" class="btn btn-light btn-lg">
+                        <i class="bi bi-cloud-upload me-2"></i>
+                        Start Generating MRDs
+                    </a>
+                    <a href="{{ url_for('documentation_index') }}" class="btn btn-outline-light btn-lg">
+                        <i class="bi bi-book me-2"></i>
+                        View Documentation
+                    </a>
+                    <a href="#demo" class="btn btn-outline-light">
+                        <i class="bi bi-play-circle me-2"></i>
+                        See Demo
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-4 text-center d-none d-lg-block">
+                <div class="position-relative">
+                    <i class="bi bi-diagram-3 display-1 text-light opacity-75"></i>
+                    <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center">
+                        <div class="badge bg-success fs-6 px-3 py-2 rounded-pill">
+                            Redfish v1.3.0 Compliant
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Key Features -->
+<div class="container mb-5">
+    <div class="text-center mb-5">
+        <h2 class="display-6 fw-bold">What This Tool Does</h2>
+        <p class="lead text-muted">Automatically classify and generate MetricReportDefinitions from your Redfish mockup data</p>
+    </div>
+    
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100 hover-lift">
+                <div class="card-body text-center p-4">
+                    <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 64px; height: 64px;">
+                        <i class="bi bi-file-earmark-code text-primary fs-4"></i>
+                    </div>
+                    <h5 class="fw-bold">Parse Mockup Data</h5>
+                    <p class="text-muted">
+                        Upload Redfish mockup files (.tgz or directories) and automatically extract telemetry sources and metrics data.
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100 hover-lift">
+                <div class="card-body text-center p-4">
+                    <div class="bg-success bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 64px; height: 64px;">
+                        <i class="bi bi-tags text-success fs-4"></i>
+                    </div>
+                    <h5 class="fw-bold">Classify Metrics</h5>
+                    <p class="text-muted">
+                        Intelligently categorize metrics into 6 types: Performance, Environmental, Health, Error, Security, and Lifecycle.
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm h-100 hover-lift">
+                <div class="card-body text-center p-4">
+                    <div class="bg-info bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 64px; height: 64px;">
+                        <i class="bi bi-file-earmark-check text-info fs-4"></i>
+                    </div>
+                    <h5 class="fw-bold">Generate MRDs</h5>
+                    <p class="text-muted">
+                        Create schema-compliant MetricReportDefinition JSON files with proper @odata types and validation.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Workflow Steps -->
+<div class="bg-light py-5 mb-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-6 fw-bold">Simple 3-Step Workflow</h2>
+            <p class="lead text-muted">From mockup to production-ready MRDs in minutes</p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <div class="text-center">
+                    <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                        <span class="fs-3 fw-bold">1</span>
+                    </div>
+                    <h4 class="fw-bold mb-3">Upload & Analyze</h4>
+                    <p class="text-muted">
+                        Upload your Redfish mockup file and let the tool analyze available metrics and classify them automatically.
+                    </p>
+                    <a href="{{ url_for('upload_file') }}" class="btn btn-outline-primary">Upload Mockup</a>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="text-center">
+                    <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                        <span class="fs-3 fw-bold">2</span>
+                    </div>
+                    <h4 class="fw-bold mb-3">Configure Settings</h4>
+                    <p class="text-muted">
+                        Customize MRD properties, metric mappings, and generation settings using our intuitive configuration interface.
+                    </p>
+                    <a href="{{ url_for('configure') }}" class="btn btn-outline-success">Configure MRDs</a>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="text-center">
+                    <div class="bg-info text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                        <span class="fs-3 fw-bold">3</span>
+                    </div>
+                    <h4 class="fw-bold mb-3">Generate & Download</h4>
+                    <p class="text-muted">
+                        Generate schema-compliant MRD files and download them for integration with your Redfish services.
+                    </p>
+                    <button class="btn btn-outline-info" onclick="scrollToDemo()">See Results</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Metric Categories -->
+<div class="container mb-5">
+    <div class="text-center mb-5">
+        <h2 class="display-6 fw-bold">Supported Metric Categories</h2>
+        <p class="lead text-muted">Comprehensive classification covering all BMC telemetry types</p>
+    </div>
+    
+    <div class="row g-4">
+        <div class="col-md-4 mb-3">
+            <div class="card metric-card h-100 border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="display-6 text-primary mb-3">
+                        <i class="bi bi-speedometer2"></i>
+                    </div>
+                    <h5 class="card-title fw-bold">Performance Metrics</h5>
+                    <p class="card-text small text-muted">
+                        CPU utilization, memory bandwidth, I/O throughput, and system performance indicators.
+                    </p>
+                    <div class="mt-auto">
+                        <small class="text-primary">
+                            <i class="bi bi-check-circle-fill me-1"></i>
+                            Real-time monitoring ready
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-3">
+            <div class="card metric-card h-100 border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="display-6 text-success mb-3">
+                        <i class="bi bi-thermometer-half"></i>
+                    </div>
+                    <h5 class="card-title fw-bold">Environmental Metrics</h5>
+                    <p class="card-text small text-muted">
+                        Temperature sensors, power consumption, fan speeds, and environmental monitoring.
+                    </p>
+                    <div class="mt-auto">
+                        <small class="text-success">
+                            <i class="bi bi-check-circle-fill me-1"></i>
+                            Thermal management
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-3">
+            <div class="card metric-card h-100 border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="display-6 text-warning mb-3">
+                        <i class="bi bi-heart-pulse"></i>
+                    </div>
+                    <h5 class="card-title fw-bold">Health Metrics</h5>
+                    <p class="card-text small text-muted">
+                        Component status, diagnostic results, health indicators, and system wellness.
+                    </p>
+                    <div class="mt-auto">
+                        <small class="text-warning">
+                            <i class="bi bi-check-circle-fill me-1"></i>
+                            Predictive maintenance
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-3">
+            <div class="card metric-card h-100 border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="display-6 text-danger mb-3">
+                        <i class="bi bi-exclamation-triangle"></i>
+                    </div>
+                    <h5 class="card-title fw-bold">Error Metrics</h5>
+                    <p class="card-text small text-muted">
+                        ECC errors, link failures, timeout events, and error rate monitoring.
+                    </p>
+                    <div class="mt-auto">
+                        <small class="text-danger">
+                            <i class="bi bi-check-circle-fill me-1"></i>
+                            Error tracking & analysis
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-3">
+            <div class="card metric-card h-100 border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="display-6 text-dark mb-3">
+                        <i class="bi bi-shield-check"></i>
+                    </div>
+                    <h5 class="card-title fw-bold">Security Metrics</h5>
+                    <p class="card-text small text-muted">
+                        Authentication attempts, encryption status, security violations, and access control.
+                    </p>
+                    <div class="mt-auto">
+                        <small class="text-dark">
+                            <i class="bi bi-check-circle-fill me-1"></i>
+                            Security monitoring
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4 mb-3">
+            <div class="card metric-card h-100 border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="display-6 text-info mb-3">
+                        <i class="bi bi-arrow-clockwise"></i>
+                    </div>
+                    <h5 class="card-title fw-bold">Lifecycle Metrics</h5>
+                    <p class="card-text small text-muted">
+                        Boot count, uptime, firmware versions, and system lifecycle tracking.
+                    </p>
+                    <div class="mt-auto">
+                        <small class="text-info">
+                            <i class="bi bi-check-circle-fill me-1"></i>
+                            Asset management
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Demo/Preview Section -->
+<div id="demo" class="bg-gradient-secondary text-white py-5 mb-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h2 class="display-6 fw-bold mb-4">See It In Action</h2>
+                <p class="lead mb-4">
+                    Watch how the tool transforms complex Redfish mockup data into clean, 
+                    organized MetricReportDefinition files ready for production use.
+                </p>
+                <div class="d-flex flex-wrap gap-2 mb-4">
+                    <span class="badge bg-light text-dark px-3 py-2">
+                        <i class="bi bi-check me-1"></i>
+                        Schema Validated
+                    </span>
+                    <span class="badge bg-light text-dark px-3 py-2">
+                        <i class="bi bi-check me-1"></i>
+                        Production Ready
+                    </span>
+                    <span class="badge bg-light text-dark px-3 py-2">
+                        <i class="bi bi-check me-1"></i>
+                        Customizable
+                    </span>
+                </div>
+                <a href="{{ url_for('upload_file') }}" class="btn btn-light btn-lg me-3">
+                    Try It Now
+                </a>
+                <a href="{{ url_for('documentation_index') }}" class="btn btn-outline-light btn-lg">
+                    Learn More
+                </a>
+            </div>
+            <div class="col-lg-6">
+                <div class="bg-white bg-opacity-10 rounded-3 p-4">
+                    <div class="bg-dark text-light rounded p-3 font-monospace small">
+                        <div class="text-success">$ python3 mrd_tool.py generate -m mockup.tgz</div>
+                        <div class="text-muted">📊 Analyzing mockup: mockup.tgz</div>
+                        <div class="text-muted">🏷️  Classifying metrics...</div>
+                        <div class="text-muted">✅ Performance metrics: 15 found</div>
+                        <div class="text-muted">✅ Environmental metrics: 8 found</div>
+                        <div class="text-muted">✅ Health metrics: 12 found</div>
+                        <div class="text-success">🎉 Generated 6 MRD files successfully!</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Stats -->
+<div class="container mb-5">
+    <div class="row g-4 text-center">
+        <div class="col-md-3">
+            <div class="card border-0 bg-primary bg-opacity-5">
+                <div class="card-body">
+                    <i class="bi bi-file-earmark-check display-6 text-primary mb-2"></i>
+                    <h3 class="fw-bold text-primary">6</h3>
+                    <p class="text-muted mb-0">Metric Categories</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 bg-success bg-opacity-5">
+                <div class="card-body">
+                    <i class="bi bi-shield-check display-6 text-success mb-2"></i>
+                    <h3 class="fw-bold text-success">v1.3.0</h3>
+                    <p class="text-muted mb-0">Redfish Compliant</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 bg-info bg-opacity-5">
+                <div class="card-body">
+                    <i class="bi bi-lightning-charge display-6 text-info mb-2"></i>
+                    <h3 class="fw-bold text-info">Auto</h3>
+                    <p class="text-muted mb-0">Classification</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 bg-warning bg-opacity-5">
+                <div class="card-body">
+                    <i class="bi bi-gear display-6 text-warning mb-2"></i>
+                    <h3 class="fw-bold text-warning">YAML</h3>
+                    <p class="text-muted mb-0">Configuration</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Call to Action -->
+<div class="bg-primary text-white text-center py-5">
+    <div class="container">
+        <h2 class="display-6 fw-bold mb-3">Ready to Generate Your MRDs?</h2>
+        <p class="lead mb-4">Transform your Redfish mockup data into production-ready MetricReportDefinitions in minutes.</p>
+        <div class="d-flex justify-content-center gap-3 flex-wrap">
+            <a href="{{ url_for('upload_file') }}" class="btn btn-light btn-lg">
+                <i class="bi bi-cloud-upload me-2"></i>
+                Start Now
+            </a>
+            <a href="{{ url_for('documentation_index') }}" class="btn btn-outline-light btn-lg">
+                <i class="bi bi-book me-2"></i>
+                Documentation
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.bg-gradient-secondary {
+    background: linear-gradient(135deg, #667eea 20%, #764ba2 80%);
+}
+
+.hover-lift {
+    transition: transform 0.2s ease-in-out;
+}
+
+.hover-lift:hover {
+    transform: translateY(-5px);
+}
+
+.metric-card {
+    transition: all 0.2s ease-in-out;
+}
+
+.metric-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+.font-monospace {
+    font-family: 'Courier New', monospace;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translate3d(0, 40px, 0);
+    }
+    to {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+    }
+}
+
+.animate-fade-in {
+    animation: fadeInUp 0.6s ease-out;
+}
+</style>
+
+<script>
+function scrollToDemo() {
+    document.getElementById('demo').scrollIntoView({ 
+        behavior: 'smooth' 
+    });
+}
+
+// Add animation on scroll
+const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+};
+
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('animate-fade-in');
+        }
+    });
+}, observerOptions);
+
+// Observe all cards
+document.addEventListener('DOMContentLoaded', function() {
+    const cards = document.querySelectorAll('.card, .metric-card');
+    cards.forEach(card => observer.observe(card));
+});
+</script>
+{% endblock %}
