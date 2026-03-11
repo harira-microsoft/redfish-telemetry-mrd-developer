@@ -26,16 +26,16 @@ from src.mrd_generator import MRDGenerator
 
 app = Flask(__name__)
 # Use environment variable for secret key
-_secret_key = os.environ.get('REDFISH_MRD_SECRET_KEY')
-if not _secret_key:
+_flask_session_key = os.environ.get('REDFISH_MRD_SECRET_KEY')
+if not _flask_session_key:
     import warnings
     warnings.warn(
         "REDFISH_MRD_SECRET_KEY environment variable is not set. "
         "Using an insecure fallback key. Set this variable before exposing the web UI.",
         stacklevel=2
     )
-    _secret_key = 'change-this-in-production'
-app.secret_key = _secret_key
+    _flask_session_key = 'change-this-in-production'  # nosec B105 - intentional insecure fallback, warned above
+app.secret_key = _flask_session_key
 app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024  # 100MB max file size
 app.config['UPLOAD_FOLDER'] = '.temp/uploads'
 app.config['OUTPUT_FOLDER'] = 'outputs/web_output'
@@ -430,4 +430,8 @@ def view_documentation(filename: str) -> str:
 
 if __name__ == '__main__':
     debug = os.environ.get('FLASK_DEBUG', 'false').lower() == 'true'
-    app.run(debug=debug, host='0.0.0.0', port=5000)
+    host = os.environ.get('FLASK_HOST', '127.0.0.1')  # nosec B104 - override with FLASK_HOST=0.0.0.0 only on trusted networks
+    port = int(os.environ.get('FLASK_PORT', '5000'))
+    if host == '0.0.0.0':
+        logger.warning("Binding to all interfaces (0.0.0.0). Ensure this is only on a trusted network.")
+    app.run(debug=debug, host=host, port=port)

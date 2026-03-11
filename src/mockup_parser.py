@@ -42,7 +42,12 @@ class MockupParser:
         """Extract tgz file to temporary directory."""
         self.temp_dir = tempfile.mkdtemp()
         with tarfile.open(self.mockup_path, 'r:gz') as tar:
-            tar.extractall(self.temp_dir)
+            # Filter out unsafe members to prevent path traversal (CWE-22)
+            safe_members = [
+                m for m in tar.getmembers()
+                if not os.path.isabs(m.name) and '..' not in m.name
+            ]
+            tar.extractall(self.temp_dir, members=safe_members)  # nosec B202
         
         # Find the actual mockup directory containing redfish data
         # First, check if there's only one extracted item
