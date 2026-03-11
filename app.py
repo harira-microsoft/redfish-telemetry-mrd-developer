@@ -430,8 +430,8 @@ def view_documentation(filename: str) -> str:
 
 if __name__ == '__main__':
     debug = os.environ.get('FLASK_DEBUG', 'false').lower() == 'true'
-    host = os.environ.get('FLASK_HOST', '127.0.0.1')  # nosec B104 - override with FLASK_HOST=0.0.0.0 only on trusted networks
+    host = os.environ.get('FLASK_HOST', '127.0.0.1')
     port = int(os.environ.get('FLASK_PORT', '5000'))
-    if host == '0.0.0.0':
-        logger.warning("Binding to all interfaces (0.0.0.0). Ensure this is only on a trusted network.")
+    if host != '127.0.0.1' and host != '::1':  # nosec B104
+        logger.warning("Binding to a non-loopback interface (%s). Ensure this is only on a trusted network.", host)
     app.run(debug=debug, host=host, port=port)
